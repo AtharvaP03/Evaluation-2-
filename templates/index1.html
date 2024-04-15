@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Answer Evaluation</title>
+</head>
+<body>
+    <h1>Answer Evaluation</h1>
+    <form id="evaluation-form">
+        <label for="question">Question:</label><br>
+        <input type="text" id="question" name="question" required><br><br>
+        <label for="answer">Answer:</label><br>
+        <textarea id="answer" name="answer" required></textarea><br><br>
+        <button type="submit">Evaluate</button>
+    </form>
+
+    <div id="evaluation-result"></div>
+
+    <script>
+        document.getElementById('evaluation-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = {
+                question: formData.get('question'),
+                answer: formData.get('answer')
+            };
+
+            fetch('/evaluate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                const { final_score, grade, breakdown, sentiment } = result;
+                const sentimentInterpretation = sentiment === -1 ? 'strong negative' : sentiment === 0 ? 'neutral' : 'strong positive';
+                document.getElementById('evaluation-result').innerHTML = `
+                    <h2>Evaluation Result</h2>
+                    <p>Final Score: ${final_score.toFixed(2)}</p>
+                    <p>Grade: ${grade}</p>
+                    <h3>Breakdown:</h3>
+                    <ul>
+                        ${Object.entries(breakdown).map(([criterion, score]) => `<li>${criterion}: ${score.toFixed(2)}</li>`).join('')}
+                    </ul>
+                    <p>Sentiment: ${sentiment.toFixed(2)} (${sentimentInterpretation})</p>
+                `;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
