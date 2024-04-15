@@ -142,12 +142,12 @@ def evaluate():
     evaluation = response.text.strip()
     scores = [float(value) for value in re.findall(r'-?\d+', evaluation)]
 
-    breakdown = {criterion: score * rubric["Excellent"]["criteria"][criterion]["weight"] for criterion, score in zip(rubric["Excellent"]["criteria"].keys(), scores)}
+    # Calculate the breakdown of scores based on the rubric weights
+    breakdown = {criterion: min(score * rubric["Excellent"]["criteria"][criterion]["weight"], 100) for criterion, score in zip(rubric["Excellent"]["criteria"].keys(), scores)}
 
     # Calculate the final score
-    final_score = sum(breakdown.values())
+    final_score = min(sum(breakdown.values()), 100)
 
-    # Analyze sentiment of the candidate's response
     sentiment = TextBlob(answer).sentiment.polarity
 
     grade = None
