@@ -142,7 +142,6 @@ def evaluate():
     evaluation = response.text.strip()
     scores = [float(value) for value in re.findall(r'-?\d+', evaluation)]
 
-    # Calculate the breakdown of scores based on the rubric weights
     breakdown = {criterion: min(score * rubric["Excellent"]["criteria"][criterion]["weight"], 100) for criterion, score in zip(rubric["Excellent"]["criteria"].keys(), scores)}
 
     # Calculate the final score
